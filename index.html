@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Type Advantage Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+        }
+
+        .score {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .option.selected {
+            border-color: #3498db;
+            background: #e8f4fc;
+        }
+
+        .option.correct {
+            border-color: #27ae60;
+            background: #e8f8ef;
+        }
+
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: #fdedec;
+        }
+
+        .explanation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+            border-left: 4px solid #3498db;
+        }
+
+        .explanation h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            width: 100%;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .results {
+            text-align: center;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+
+        .score-message {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .type-chip {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 0 5px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fire { background: #ee8130; }
+        .water { background: #6390f0; }
+        .grass { background: #7ac74c; }
+        .electric { background: #f7d02c; color: #2c3e50; }
+        .ice { background: #96d9d6; color: #2c3e50; }
+        .fighting { background: #c22e28; }
+        .poison { background: #a33ea1; }
+        .ground { background: #e2bf65; color: #2c3e50; }
+        .flying { background: #a98ff3; }
+        .psychic { background: #f95587; }
+        .bug { background: #a6b91a; }
+        .rock { background: #b6a136; }
+        .ghost { background: #735797; }
+        .dark { background: #705746; }
+        .dragon { background: #6f35fc; }
+        .steel { background: #b7b7ce; color: #2c3e50; }
+        .fairy { background: #d685ad; }
+
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Pokémon Type Advantage Quiz</h1>
+        <p class="subtitle">Test your knowledge of Pokémon type matchups!</p>
+        
+        <div class="progress">
+            <span class="score">Score: <span id="score">0</span></span>
+            <span>Question <span id="current-question">1</span> of <span id="total-questions">10</span></span>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 10%;"></div>
+        </div>
+        
+        <div id="quiz-content">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Which type is super effective against Water type?",
+                options: [
+                    { text: "Fire", correct: false },
+                    { text: "Grass", correct: true },
+                    { text: "Electric", correct: false },
+                    { text: "Ice", correct: false }
+                ],
+                explanation: "Grass type moves are super effective against Water type Pokémon. This is because plants absorb water, making Grass a natural counter to Water types."
+            },
+            {
+                question: "What type is weak to Electric attacks?",
+                options: [
+                    { text: "Ground", correct: false },
+                    { text: "Rock", correct: false },
+                    { text: "Flying", correct: true },
+                    { text: "Steel", correct: false }
+                ],
+                explanation: "Flying type Pokémon are weak to Electric attacks. Many flying creatures are vulnerable to electrical storms and lightning strikes in nature."
+            },
+            {
+                question: "Which type resists Poison attacks?",
+                options: [
+                    { text: "Grass", correct: false },
+                    { text: "Psychic", correct: false },
+                    { text: "Steel", correct: true },
+                    { text: "Fairy", correct: false }
+                ],
+                explanation: "Steel type Pokémon resist Poison attacks. Metals are generally non-porous and resistant to corrosion from most poisons and acids."
+            },
+            {
+                question: "What type is super effective against Dragon type?",
+                options: [
+                    { text: "Dragon", correct: true },
+                    { text: "Fire", correct: false },
+                    { text: "Water", correct: false },
+                    { text: "Electric", correct: false }
+                ],
+                explanation: "Dragon type moves are super effective against other Dragon types. In mythology, dragons are often depicted as each other's greatest rivals and weaknesses."
+            },
+            {
+                question: "Which type is NOT very effective against Steel?",
+                options: [
+                    { text: "Fire", correct: false },
+                    { text: "Fighting", correct: false },
+                    { text: "Ground", correct: false },
+                    { text: "Poison", correct: true }
+                ],
+                explanation: "Poison type moves are not very effective against Steel types. Steel is resistant to corrosion and poisoning, making poison attacks largely ineffective."
+            },
+            {
+                question: "What type is weak to Rock attacks?",
+                options: [
+                    { text: "Steel", correct: false },
+                    { text: "Fighting", correct: false },
+                    { text: "Flying", correct: true },
+                    { text: "Poison", correct: false }
+                ],
+                explanation: "Flying type Pokémon are weak to Rock attacks. This represents how birds and flying creatures can be vulnerable to being struck by stones or rocks."
+            },
+            {
+                question: "Which type resists Bug attacks?",
+                options: [
+                    { text: "Grass", correct: false },
+                    { text: "Psychic", correct: false },
+                    { text: "Fighting", correct: true },
+                    { text: "Dark", correct: false }
+                ],
+                explanation: "Fighting type Pokémon resist Bug attacks. This symbolizes how martial artists can easily handle small insects and bugs."
+            },
+            {
+                question: "What type is super effective against Ground type?",
+                options: [
+                    { text: "Electric", correct: false },
+                    { text: "Rock", correct: false },
+                    { text: "Ice", correct: true },
+                    { text: "Poison", correct: false }
+                ],
+                explanation: "Ice type moves are super effective against Ground types. This represents how freezing temperatures can make ground solid and immobile, like permafrost."
+            },
+            {
+                question: "Which type is weak to Fighting attacks?",
+                options: [
+                    { text: "Ghost", correct: false },
+                    { text: "Steel", correct: false },
+                    { text: "Normal", correct: true },
+                    { text: "Flying", correct: false }
+                ],
+                explanation: "Normal type Pokémon are weak to Fighting attacks. This represents how martial arts and combat techniques are effective against ordinary, untrained opponents."
+            },
+            {
+                question: "What type resists Ghost attacks?",
+                options: [
+                    { text: "Psychic", correct: false },
+                    { text: "Dark", correct: true },
+                    { text: "Fairy", correct: false },
+                    { text: "Dragon", correct: false }
+                ],
+                explanation: "Dark type Pokémon resist Ghost attacks. This symbolizes how darkness and evil are often associated with and resistant to supernatural forces."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        function initializeQuiz() {
+            updateProgress();
+            showQuestion();
+        }
+
+        function updateProgress() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('progress-fill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+        }
+
+        function showQuestion() {
+            const quizContent = document.getElementById('quiz-content');
+            const question = questions[currentQuestion];
+            
+            let optionsHTML = question.options.map((option, index) => `
+                <div class="option" onclick="selectOption(${index})">
+                    ${option.text}
+                </div>
+            `).join('');
+
+            quizContent.innerHTML = `
+                <div class="question">${question.question}</div>
+                <div class="options">${optionsHTML}</div>
+                <div class="actions">
+                    <button class="submit-btn" onclick="checkAnswer()" disabled>Submit Answer</button>
+                </div>
+            `;
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+            document.querySelector('.submit-btn').disabled = false;
+        }
+
+        function checkAnswer() {
+            const options = document.querySelectorAll('.option');
+            const question = questions[currentQuestion];
+            const isCorrect = question.options[selectedOption].correct;
+
+            options.forEach((option, index) => {
+                if (question.options[index].correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedOption) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+
+            document.querySelector('.submit-btn').style.display = 'none';
+            
+            const explanationHTML = `
+                <div class="explanation">
+                    <h3>${isCorrect ? 'Correct!' : 'Incorrect!'}</h3>
+                    <p>${question.explanation}</p>
+                </div>
+                <div class="actions">
+                    <button class="next-btn" onclick="nextQuestion()">
+                        ${currentQuestion < questions.length - 1 ? 'Next Question' : 'See Results'}
+                    </button>
+                </div>
+            `;
+            
+            document.querySelector('.actions').insertAdjacentHTML('beforebegin', explanationHTML);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            selectedOption = null;
+            
+            if (currentQuestion < questions.length) {
+                updateProgress();
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const percentage = (score / questions.length) * 100;
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'Excellent! You\'re a Pokémon type master!';
+            } else if (percentage >= 60) {
+                message = 'Great job! You know your type matchups well!';
+            } else if (percentage >= 40) {
+                message = 'Good effort! Keep studying those type charts!';
+            } else {
+                message = 'Keep practicing! You\'ll master type advantages soon!';
+            }
+
+            document.getElementById('quiz-content').innerHTML = `
+                <div class="results">
+                    <h2>Quiz Complete!</h2>
+                    <div class="final-score">${score}/${questions.length}</div>
+                    <div class="score-message">${message}</div>
+                    <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            updateProgress();
+            showQuestion();
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>
